@@ -49,7 +49,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postfres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: bean-organized
     ports:
       - "5432:5432"
