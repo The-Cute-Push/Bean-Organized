@@ -43,9 +43,23 @@ services:
     networks:
       - beanorganized-network
 
+  db:
+    image: postgres:16-alpine
+    container_name: bean_organized_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postfres
+      POSTGRES_DB: bean-organized
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 networks:
   beanorganized-network:
     driver: bridge
 
 volumes:
   elastic_data: {}
+  postgres_data:
