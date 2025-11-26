@@ -1,4 +1,4 @@
-package cutepush.beanorganized.postgres.entity;
+package cutepush.beanorganized.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,12 +9,12 @@ import org.springframework.data.relational.core.mapping.Table;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("tb_users")
-public class Users {
+@Table("tb_user")
+public class UserEntity {
     @Id
     private Long id;
 
-    private String nome;
+    private String name;
     private String email;
-    private String senha;
+    private String password;
 }

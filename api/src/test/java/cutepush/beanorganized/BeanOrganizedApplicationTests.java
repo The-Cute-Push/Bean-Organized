@@ -1,6 +1,6 @@
 package cutepush.beanorganized;
 
-import cutepush.beanorganized.postgres.repository.UserRepository;
+import cutepush.beanorganized.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
