@@ -10,7 +10,7 @@ import org.springframework.kafka.core.KafkaAdmin;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cutepush.beanorganized.kafka.KafkaTopics.USER_REGISTRATION_TOPIC;
+import static cutepush.beanorganized.kafka.KafkaTopics.USER_EVENTS_TOPIC ;
 
 @Configuration
 public class KafkaConfig {
@@ -33,6 +33,6 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic createTopic() {
-        return new NewTopic(USER_REGISTRATION_TOPIC, numPartitions, replicationFactor);
+        return new NewTopic(USER_EVENTS_TOPIC , numPartitions, replicationFactor);
     }
 }

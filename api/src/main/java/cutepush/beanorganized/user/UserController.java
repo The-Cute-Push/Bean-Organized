@@ -53,10 +53,6 @@ public class UserController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        // Ensure 404 when not exists
-        if (userService.findById(id).isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
-        userService.deleteById(id);
+        userService.delete(id);
     }
 }

@@ -22,21 +22,15 @@ public class UserService {
     }
 
     public UserEntity save(UserEntity userEntity) {
-        try {
-            boolean isNew = (userEntity.getId() == null);
-
-            UserEntity savedUser = userRepository.save(userEntity);
-            log.info("User {}: {}", isNew ? "created" : "updated", savedUser);
-
-            if (isNew) {
-                userProducer.send(UserEvent.create(savedUser, EventType.CREATE));
-            } else {
-                userProducer.send(UserEvent.create(savedUser, EventType.UPDATE));
-            }
-            return savedUser;
-        } catch(Exception e) {
-            throw new RuntimeException("Error saving user: " + e.getMessage(), e);
+        boolean isNew = (userEntity.getId() == null);
+        UserEntity savedUser = userRepository.save(userEntity);
+        log.info("User {}: {}", isNew ? "created" : "updated", savedUser);
+        if (isNew) {
+            userProducer.send(UserEvent.create(savedUser, EventType.CREATE));
+        } else {
+            userProducer.send(UserEvent.create(savedUser, EventType.UPDATE));
         }
+        return savedUser;
     }
 
     public Optional<UserEntity> findById(Long id) {
@@ -47,8 +41,12 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public void deleteById(Long id) {
-
-        userRepository.deleteById(id);
+    public void delete(Long id) {
+        UserEntity userToDelete = findById(id).orElseThrow(
+                () -> new RuntimeException("User not found")
+        );
+        log.info("User deleted: {}", id);
+        userProducer.send(UserEvent.create(userToDelete, EventType.DELETE));
+        userRepository.delete(userToDelete);
     }
 }

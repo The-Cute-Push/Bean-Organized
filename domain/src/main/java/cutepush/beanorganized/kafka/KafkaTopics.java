@@ -5,5 +5,5 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class KafkaTopics {
 
-    public static final String USER_REGISTRATION_TOPIC = "user.register";
+    public static final String USER_EVENTS_TOPIC  = "user.events";
 }
