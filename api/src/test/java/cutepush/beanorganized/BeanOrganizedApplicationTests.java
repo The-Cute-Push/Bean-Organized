@@ -1,5 +1,10 @@
 package cutepush.beanorganized;
 
+import cutepush.beanorganized.category.CategoryService;
+import cutepush.beanorganized.categorytasks.CategoryTaskService;
+import cutepush.beanorganized.task.TaskService;
+import cutepush.beanorganized.notification.NotificationService;
+import cutepush.beanorganized.user.UserProfileRepository;
 import cutepush.beanorganized.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -16,6 +21,21 @@ class BeanOrganizedApplicationTests {
 
     @MockitoBean
     private UserRepository userRepository;
+
+    @MockitoBean
+    private UserProfileRepository userProfileRepository;
+
+    @MockitoBean
+    private TaskService taskService;
+
+    @MockitoBean
+    private NotificationService notificationService;
+
+    @MockitoBean
+    private CategoryService categoryService;
+
+    @MockitoBean
+    private CategoryTaskService categoryTaskService;
 
     @Test
     void contextLoads() {
