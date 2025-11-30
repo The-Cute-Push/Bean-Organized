@@ -1,5 +1,6 @@
 package cutepush.beanorganized;
 
+import cutepush.beanorganized.task.TaskService;
 import cutepush.beanorganized.user.UserProfileRepository;
 import cutepush.beanorganized.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,9 @@ class BeanOrganizedApplicationTests {
 
     @MockitoBean
     private UserProfileRepository userProfileRepository;
+
+    @MockitoBean
+    private TaskService taskService;
 
     @Test
     void contextLoads() {

@@ -8,12 +8,17 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 import java.util.stream.StreamSupport;
+import java.util.stream.Collectors;
+
+import cutepush.beanorganized.task.TaskEntity;
+import cutepush.beanorganized.task.TaskService;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final TaskService taskService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -38,7 +43,20 @@ public class UserController {
     public UserResponse getById(@PathVariable Long id) {
         UserEntity user = userService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return toResponse(user);
+        // Load tasks for the given user and map to response DTOs
+        Iterable<TaskEntity> all = taskService.findAllByUserId(id);
+        var tasks = StreamSupport.stream(all.spliterator(), false)
+                .map(t -> new UserResponse.Task(
+                        t.getId(),
+                        t.getTitle(),
+                        t.getDescription(),
+                        t.getDateCreation(),
+                        t.getDueDate(),
+                        t.getStatus()
+                ))
+                .collect(Collectors.toList());
+
+        return toResponse(user, tasks);
     }
 
     private static UserResponse toResponse(UserEntity user) {
@@ -58,7 +76,30 @@ public class UserController {
                 user.getEmail(),
                 user.getDateCreation(),
                 user.getLastLogin(),
-                profileDto
+                profileDto,
+                null
+        );
+    }
+
+    private static UserResponse toResponse(UserEntity user, java.util.List<UserResponse.Task> tasks) {
+        UserProfileEntity profile = user.getProfile();
+        UserResponse.Profile profileDto = null;
+        if (profile != null) {
+            profileDto = new UserResponse.Profile(
+                    profile.getId(),
+                    profile.getProfilePhoto(),
+                    profile.getBiography(),
+                    profile.getPhone()
+            );
+        }
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getDateCreation(),
+                user.getLastLogin(),
+                profileDto,
+                tasks
         );
     }
 
