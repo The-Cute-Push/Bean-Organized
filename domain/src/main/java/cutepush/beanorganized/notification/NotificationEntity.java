@@ -30,5 +30,5 @@ public class NotificationEntity {
     private String type; // ex: email, push, popup
 
     @Column(name = "sent", nullable = false)
-    private boolean sent; // se já foi enviado ou não
+    private boolean sent; // if it was sent or not
 }

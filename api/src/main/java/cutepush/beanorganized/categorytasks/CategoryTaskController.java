@@ -7,6 +7,7 @@ import cutepush.beanorganized.task.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,8 +21,7 @@ public class CategoryTaskController {
     private final CategoryService categoryService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CategoryTaskResponse create(@PathVariable Long userId,
+    public ResponseEntity<CategoryTaskResponse> create(@PathVariable Long userId,
                                       @PathVariable Long taskId,
                                       @Valid @RequestBody CategoryTaskRequest request) {
         TaskEntity task = taskService.findByIdAndUserId(taskId, userId)
@@ -33,14 +33,15 @@ public class CategoryTaskController {
         // prevent duplicates
         var existing = categoryTaskService.findByCategoryIdAndTaskId(category.getId(), task.getId());
         if (existing.isPresent()) {
-            return toResponse(existing.get());
+            // nothing was created — return 200 OK with the existing resource
+            return ResponseEntity.ok(toResponse(existing.get()));
         }
 
         CategoryTaskEntity entity = new CategoryTaskEntity();
         entity.setCategory(category);
         entity.setTask(task);
         CategoryTaskEntity saved = categoryTaskService.save(entity);
-        return toResponse(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
     }
 
     @GetMapping

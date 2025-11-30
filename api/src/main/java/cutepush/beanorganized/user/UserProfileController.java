@@ -27,7 +27,7 @@ public class UserProfileController {
         }
 
         UserProfileEntity profile = new UserProfileEntity();
-        request.setPhone(request.getPhone().replaceAll("\\D", ""));
+        // phone sanitization is handled in applyRequest to keep create/update consistent
 
         profile.setUser(user);
         // With @MapsId on the entity, the primary key will be derived from the associated user automatically
@@ -49,8 +49,6 @@ public class UserProfileController {
 
         UserProfileEntity existing = userProfileService.findByUserId(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
-
-        existing.setUser(user); // ensure association
         applyRequest(existing, request);
         return userProfileService.save(existing);
     }
@@ -67,6 +65,10 @@ public class UserProfileController {
     private static void applyRequest(UserProfileEntity target, UserProfileRequest request) {
         target.setProfilePhoto(request.getProfilePhoto());
         target.setBiography(request.getBiography());
-        target.setPhone(request.getPhone());
+        if (request.getPhone() != null) {
+            target.setPhone(request.getPhone().replaceAll("\\D", ""));
+        } else {
+            target.setPhone(null);
+        }
     }
 }

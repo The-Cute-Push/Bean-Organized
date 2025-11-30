@@ -35,7 +35,8 @@ public class UserController {
     public Iterable<UserResponse> list() {
         Iterable<UserEntity> all = userService.findAll();
         return StreamSupport.stream(all.spliterator(), false)
-                .map(UserController::toResponse)
+                // use a summary mapper that doesn't access user.getProfile() to avoid N+1 when profile is EAGER
+                .map(UserController::toResponseSummary)
                 .toList();
     }
 
@@ -56,20 +57,25 @@ public class UserController {
                 ))
                 .collect(Collectors.toList());
 
-        return toResponse(user, tasks);
+        return toResponseWithTasks(user, tasks);
     }
 
-    private static UserResponse toResponse(UserEntity user) {
-        UserProfileEntity profile = user.getProfile();
-        UserResponse.Profile profileDto = null;
-        if (profile != null) {
-            profileDto = new UserResponse.Profile(
-                    profile.getId(),
-                    profile.getProfilePhoto(),
-                    profile.getBiography(),
-                    profile.getPhone()
-            );
-        }
+    // Summary view used in list() to avoid loading relationships (prevents N+1)
+    private static UserResponse toResponseSummary(UserEntity user) {
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getDateCreation(),
+                user.getLastLogin(),
+                null,
+                null
+        );
+    }
+
+    // Detailed response without tasks
+    private static UserResponse toResponseWithoutTasks(UserEntity user) {
+        UserResponse.Profile profileDto = toProfileDto(user.getProfile());
         return new UserResponse(
                 user.getId(),
                 user.getName(),
@@ -81,17 +87,9 @@ public class UserController {
         );
     }
 
-    private static UserResponse toResponse(UserEntity user, java.util.List<UserResponse.Task> tasks) {
-        UserProfileEntity profile = user.getProfile();
-        UserResponse.Profile profileDto = null;
-        if (profile != null) {
-            profileDto = new UserResponse.Profile(
-                    profile.getId(),
-                    profile.getProfilePhoto(),
-                    profile.getBiography(),
-                    profile.getPhone()
-            );
-        }
+    // Detailed response with tasks
+    private static UserResponse toResponseWithTasks(UserEntity user, java.util.List<UserResponse.Task> tasks) {
+        UserResponse.Profile profileDto = toProfileDto(user.getProfile());
         return new UserResponse(
                 user.getId(),
                 user.getName(),
@@ -100,6 +98,17 @@ public class UserController {
                 user.getLastLogin(),
                 profileDto,
                 tasks
+        );
+    }
+
+    // Helper to convert a UserProfileEntity to the DTO; returns null when profile is null
+    private static UserResponse.Profile toProfileDto(UserProfileEntity profile) {
+        if (profile == null) return null;
+        return new UserResponse.Profile(
+                profile.getId(),
+                profile.getProfilePhoto(),
+                profile.getBiography(),
+                profile.getPhone()
         );
     }
 
