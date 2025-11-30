@@ -30,9 +30,4 @@ public class KafkaConfig {
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         return new KafkaAdmin(configs);
     }
-
-    @Bean
-    public NewTopic createTopic() {
-        return new NewTopic(USER_EVENTS_TOPIC , numPartitions, replicationFactor);
-    }
 }

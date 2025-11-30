@@ -28,7 +28,7 @@ public class UserConsumer {
             }
         } catch (Exception e) {
             log.error("Error processing user event from Kafka: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to process user event from Kafka", e);
+            throw new UserEventProcessingException("Failed to process user event from Kafka", e);
         }
     }
 
@@ -38,12 +38,12 @@ public class UserConsumer {
     }
 
     private void handleUpdateEvent(UserEvent event) {
-        log.info("Sending register email to user: {}", event.email());
+        log.info("Sending update email to user: {}", event.email());
         // TODO: Send email to updated user
     }
 
     private void handleDeleteEvent(UserEvent event) {
-        log.info("Sending register email to user: {}", event.email());
+        log.info("Sending deletion email to user: {}", event.email());
         // TODO: Send email to deleted user
     }
 }
