@@ -1,5 +1,6 @@
 package cutepush.beanorganized;
 
+import cutepush.beanorganized.user.UserProfileRepository;
 import cutepush.beanorganized.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -16,6 +17,9 @@ class BeanOrganizedApplicationTests {
 
     @MockitoBean
     private UserRepository userRepository;
+
+    @MockitoBean
+    private UserProfileRepository userProfileRepository;
 
     @Test
     void contextLoads() {

@@ -31,5 +31,15 @@ public class UserEntity {
     @Column(name = "date_creation", nullable = false, updatable = false)
     private Instant dateCreation;
 
-    private Timestamp last_login;
+    private Timestamp lastLogin;
+
+    // Expose the user's profile when serializing a User
+    // Child side owns the relationship via @MapsId; this is the inverse side
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, optional = true)
+    private UserProfileEntity profile;
+
+    // Convenience constructor to preserve previous signatures used in tests
+    public UserEntity(Long id, String name, String email, String password, Instant dateCreation, Timestamp lastLogin) {
+        this(id, name, email, password, dateCreation, lastLogin, null);
+    }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/users")
@@ -26,14 +27,39 @@ public class UserController {
     }
 
     @GetMapping
-    public Iterable<UserEntity> list() {
-        return userService.findAll();
+    public Iterable<UserResponse> list() {
+        Iterable<UserEntity> all = userService.findAll();
+        return StreamSupport.stream(all.spliterator(), false)
+                .map(UserController::toResponse)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public UserEntity getById(@PathVariable Long id) {
-        return userService.findById(id)
+    public UserResponse getById(@PathVariable Long id) {
+        UserEntity user = userService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return toResponse(user);
+    }
+
+    private static UserResponse toResponse(UserEntity user) {
+        UserProfileEntity profile = user.getProfile();
+        UserResponse.Profile profileDto = null;
+        if (profile != null) {
+            profileDto = new UserResponse.Profile(
+                    profile.getId(),
+                    profile.getProfilePhoto(),
+                    profile.getBiography(),
+                    profile.getPhone()
+            );
+        }
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getDateCreation(),
+                user.getLastLogin(),
+                profileDto
+        );
     }
 
     @PutMapping("/{id}")
