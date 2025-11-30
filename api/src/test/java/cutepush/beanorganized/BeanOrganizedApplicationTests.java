@@ -1,5 +1,7 @@
 package cutepush.beanorganized;
 
+import cutepush.beanorganized.category.CategoryService;
+import cutepush.beanorganized.categorytasks.CategoryTaskService;
 import cutepush.beanorganized.task.TaskService;
 import cutepush.beanorganized.notification.NotificationService;
 import cutepush.beanorganized.user.UserProfileRepository;
@@ -28,6 +30,12 @@ class BeanOrganizedApplicationTests {
 
     @MockitoBean
     private NotificationService notificationService;
+
+    @MockitoBean
+    private CategoryService categoryService;
+
+    @MockitoBean
+    private CategoryTaskService categoryTaskService;
 
     @Test
     void contextLoads() {
