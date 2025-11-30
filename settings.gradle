@@ -6,4 +6,4 @@
  */
 
 rootProject.name = 'Bean-Organized'
-include('api', 'domain')
+include('api', 'domain', 'int-api')

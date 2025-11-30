@@ -1,0 +1,27 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation project(':domain')
+
+    //Spring Boot Dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Logging with Logstash
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}
+
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = false
+}
+

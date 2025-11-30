@@ -6,7 +6,7 @@
                 <timestamp/>
                 <version/>
                 <pattern>
-                    <pattern>{"service.name":"${spring.application.name:-BRBeanOrganizedServices}"}</pattern>
+                    <pattern>{"service.name":"${spring.application.name:-InternalBRBeanOrganizedProcessor}"}</pattern>
                 </pattern>
                 <loggerName/>
                 <threadName/>
