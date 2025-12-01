@@ -3,6 +3,7 @@ package cutepush.beanorganized.kafka.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cutepush.beanorganized.kafka.email.Email;
 import cutepush.beanorganized.kafka.email.EmailService;
+import cutepush.beanorganized.kafka.email.EmailTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -46,18 +47,7 @@ public class UserConsumer {
                 .withZone(ZoneId.systemDefault())
                 .format(event.creationTime());
 
-        String htmlBody = "" +
-                "<div style='font-family:Arial,Helvetica,sans-serif;background:#f6f6f6;padding:24px;'>" +
-                "  <table role='presentation' cellpadding='0' cellspacing='0' width='100%' style='max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08)'>" +
-                "    <tr>" +
-                "      <td style='background:#EA1D2C;padding:24px 28px;color:#ffffff;'>" +
-                "        <h1 style='margin:0;font-size:22px;line-height:1.3'>" +
-                "          <span style='display:inline-block;vertical-align:middle;margin-right:10px'>🍽️</span>" +
-                "          Bean Organized" +
-                "        </h1>" +
-                "        <p style='margin:6px 0 0;font-size:14px;opacity:.9'>Sua organização no ponto certo 😉</p>" +
-                "      </td>" +
-                "    </tr>" +
+        String innerRows = "" +
                 "    <tr>" +
                 "      <td style='padding:28px'>" +
                 "        <h2 style='margin:0 0 10px;font-size:20px;color:#111'>Olá, " + escapeHtml(safe(event.name())) + " 👋</h2>" +
@@ -73,14 +63,9 @@ public class UserConsumer {
                 "        <a href='http://localhost:8080/users/"+event.id()+"' style='display:inline-block;background:#EA1D2C;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:bold;'>Acessar minha conta</a>" +
                 "        <p style='margin:18px 0 0;color:#666;font-size:12px'>Se você não criou esta conta, ignore este email.</p>" +
                 "      </td>" +
-                "    </tr>" +
-                "    <tr>" +
-                "      <td style='background:#fafafa;color:#888;font-size:12px;padding:16px 24px;text-align:center'>" +
-                "        © " + java.time.Year.now() + " Bean Organized — Feito com ❤️ no Brasil" +
-                "      </td>" +
-                "    </tr>" +
-                "  </table>" +
-                "</div>";
+                "    </tr>\n";
+
+        String htmlBody = EmailTemplate.wrapWithShell(innerRows);
 
         Email email = new Email(event.email(), subject, htmlBody);
         emailService.sendEmail(email);
@@ -93,15 +78,7 @@ public class UserConsumer {
                 .withZone(ZoneId.systemDefault())
                 .format(Instant.now());
 
-        String htmlBody = "" +
-                "<div style='font-family:Arial,Helvetica,sans-serif;background:#f6f6f6;padding:24px;'>" +
-                "  <table role='presentation' cellpadding='0' cellspacing='0' width='100%' style='max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08)'>" +
-                "    <tr>" +
-                "      <td style='background:#EA1D2C;padding:24px 28px;color:#ffffff;'>" +
-                "        <h1 style='margin:0;font-size:22px;line-height:1.3'>Bean Organized</h1>" +
-                "        <p style='margin:6px 0 0;font-size:14px;opacity:.9'>Sua organização no ponto certo 😉</p>" +
-                "      </td>" +
-                "    </tr>" +
+        String innerRows = "" +
                 "    <tr>" +
                 "      <td style='padding:28px'>" +
                 "        <h2 style='margin:0 0 10px;font-size:20px;color:#111'>Olá, " + escapeHtml(safe(event.name())) + " 👋</h2>" +
@@ -111,14 +88,9 @@ public class UserConsumer {
                 "        </div>" +
                 "        <a href='http://localhost:8080/users/"+event.id()+"' style='display:inline-block;background:#EA1D2C;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:bold;'>Revisar minhas informações</a>" +
                 "      </td>" +
-                "    </tr>" +
-                "    <tr>" +
-                "      <td style='background:#fafafa;color:#888;font-size:12px;padding:16px 24px;text-align:center'>" +
-                "        © " + java.time.Year.now() + " Bean Organized — Feito com ❤️ no Brasil" +
-                "      </td>" +
-                "    </tr>" +
-                "  </table>" +
-                "</div>";
+                "    </tr>\n";
+
+        String htmlBody = EmailTemplate.wrapWithShell(innerRows);
 
         Email email = new Email(event.email(), subject, htmlBody);
         emailService.sendEmail(email);
@@ -127,15 +99,7 @@ public class UserConsumer {
     private void handleDeleteEvent(UserEvent event) {
         log.info("Sending deletion email to user: {}", event.email());
         String subject = "Sua conta foi excluída — Sentiremos sua falta, " + safe(event.name()) + "";
-        String htmlBody = "" +
-                "<div style='font-family:Arial,Helvetica,sans-serif;background:#f6f6f6;padding:24px;'>" +
-                "  <table role='presentation' cellpadding='0' cellspacing='0' width='100%' style='max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08)'>" +
-                "    <tr>" +
-                "      <td style='background:#EA1D2C;padding:24px 28px;color:#ffffff;'>" +
-                "        <h1 style='margin:0;font-size:22px;line-height:1.3'>Bean Organized</h1>" +
-                "        <p style='margin:6px 0 0;font-size:14px;opacity:.9'>Portas sempre abertas 👋</p>" +
-                "      </td>" +
-                "    </tr>" +
+        String innerRows = "" +
                 "    <tr>" +
                 "      <td style='padding:28px'>" +
                 "        <h2 style='margin:0 0 10px;font-size:20px;color:#111'>Até breve, " + escapeHtml(safe(event.name())) + "</h2>" +
@@ -146,14 +110,9 @@ public class UserConsumer {
                 "        <a href='https://app.beanorganized.com/' style='display:inline-block;background:#EA1D2C;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:bold;'>Voltar para o site</a>" +
                 "        <p style='margin:18px 0 0;color:#666;font-size:12px'>Dúvidas? <a href='mailto:suporte@beanorganized.com' style='color:#0b5ed7;text-decoration:none'>suporte@beanorganized.com</a></p>" +
                 "      </td>" +
-                "    </tr>" +
-                "    <tr>" +
-                "      <td style='background:#fafafa;color:#888;font-size:12px;padding:16px 24px;text-align:center'>" +
-                "        © " + java.time.Year.now() + " Bean Organized — Feito com ❤️ no Brasil" +
-                "      </td>" +
-                "    </tr>" +
-                "  </table>" +
-                "</div>";
+                "    </tr>\n";
+
+        String htmlBody = EmailTemplate.wrapWithShell(innerRows);
 
         Email email = new Email(event.email(), subject, htmlBody);
         emailService.sendEmail(email);
