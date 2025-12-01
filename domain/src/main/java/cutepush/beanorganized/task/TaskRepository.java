@@ -16,7 +16,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long>, JpaSpec
     Iterable<TaskEntity> findAllByUser_Id(Long userId);
     Optional<TaskEntity> findByIdAndUser_Id(Long id, Long userId);
 
-    @Query("select distinct t from TaskEntity t left join t.categoryTasks ct left join ct.category c " +
+    @Query("select distinct t from TaskEntity t inner join t.categoryTasks ct inner join ct.category c " +
             "where t.user.id = :userId " +
             "and (:title is null or lower(t.title) like lower(concat('%', :title, '%'))) " +
             "and (:categoryId is null or c.id = :categoryId) " +
