@@ -1,6 +1,7 @@
 package cutepush.beanorganized.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cutepush.beanorganized.task.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Optional;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -25,6 +29,10 @@ public class UserTestController {
     private UserController userController;
     @Mock
     private UserService userService;
+    @Mock
+    private TaskService taskService;
+    @Mock
+    private UserProfileService userProfileService;
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -39,6 +47,8 @@ public class UserTestController {
         // O usuário que o Service vai "retornar"
         UserEntity userSaved = new UserEntity(1L, "Lucas", "lucas@email.com", "12345678", null, null);
         when(userService.save(any(UserEntity.class))).thenReturn(userSaved);
+        // prevent NPE from controller trying to load profile
+        when(userProfileService.findByUserId(anyLong())).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON) // Avisa que estamos mandando JSON
