@@ -11,7 +11,7 @@ dependencies {
     compileOnly 'org.slf4j:slf4j-api'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
 
     implementation 'org.springframework.kafka:spring-kafka'

@@ -9,6 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -42,7 +45,9 @@ public class TaskControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(taskController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(taskController)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+                .build();
     }
 
     @Test
@@ -82,12 +87,29 @@ public class TaskControllerTest {
         when(userService.findById(eq(userId))).thenReturn(Optional.of(new UserEntity()));
         TaskEntity t1 = new TaskEntity(1L, null, "A", "a", Instant.now(), null, "pendente");
         TaskEntity t2 = new TaskEntity(2L, null, "B", "b", Instant.now(), null, "concluída");
-        when(taskService.findAllByUserId(eq(userId))).thenReturn(List.of(t1, t2));
+        when(taskService.findAllByUserId(eq(userId), any())).thenReturn(new PageImpl<>(List.of(t1, t2), PageRequest.of(0,20), 2));
 
         mockMvc.perform(get("/users/{userId}/tasks", userId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[1].status").value("concluída"));
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[1].status").value("concluída"));
+    }
+
+    @Test
+    void list_WithFilters_ShouldReturnFilteredTasks() throws Exception {
+        Long userId = 1L;
+        when(userService.findById(eq(userId))).thenReturn(Optional.of(new UserEntity()));
+        TaskEntity t = new TaskEntity(3L, null, "Pay rent", "desc", Instant.now(), Instant.parse("2025-12-01T00:00:00Z"), "pendente");
+        when(taskService.findByUserAndFilters(eq(userId), eq("rent"), eq(5L), any(), any(), any())).thenReturn(new PageImpl<>(List.of(t), PageRequest.of(0,20), 1));
+
+        mockMvc.perform(get("/users/{userId}/tasks", userId)
+                        .param("title", "rent")
+                        .param("categoryId", "5")
+                        .param("from", "2025-01-01T00:00:00Z")
+                        .param("to", "2025-12-31T23:59:59Z"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(3L))
+                .andExpect(jsonPath("$.content[0].title").value("Pay rent"));
     }
 
     @Test
