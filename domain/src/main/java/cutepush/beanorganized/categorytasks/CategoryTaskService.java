@@ -1,16 +1,19 @@
 package cutepush.beanorganized.categorytasks;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryTaskService {
     private final CategoryTaskRepository categoryTaskRepository;
 
     public CategoryTaskEntity save(CategoryTaskEntity entity) {
+        log.info("Saving category task: {}", entity);
         return categoryTaskRepository.save(entity);
     }
 
@@ -31,6 +34,7 @@ public class CategoryTaskService {
     }
 
     public void delete(CategoryTaskEntity entity) {
+        log.info("Deleting category task: {}", entity);
         categoryTaskRepository.delete(entity);
     }
 }
