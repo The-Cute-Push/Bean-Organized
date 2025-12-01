@@ -6,6 +6,7 @@ import cutepush.beanorganized.kafka.user.UserProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -16,6 +17,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserProducer userProducer;
+    private final PasswordEncoder passwordEncoder;
 
     public UserEntity findByName(String name) {
         return userRepository.findByName(name);
@@ -30,7 +32,14 @@ public class UserService {
         } else {
             userProducer.send(UserEvent.create(savedUser, EventType.UPDATE));
         }
+        if (userEntity.getPassword() != null && !isBCrypt(userEntity.getPassword())) {
+            userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        }
         return savedUser;
+    }
+
+    private boolean isBCrypt(String pwd) {
+        return pwd.startsWith("$2a$") || pwd.startsWith("$2b$") || pwd.startsWith("$2y$");
     }
 
     public Optional<UserEntity> findById(Long id) {

@@ -5,6 +5,7 @@ plugins {
 dependencies {
     compileOnly 'org.springframework:spring-context'
     api 'jakarta.persistence:jakarta.persistence-api'
+    api 'org.springframework.security:spring-security-crypto:6.1.0'
     compileOnly 'org.hibernate.orm:hibernate-core'
     compileOnly 'jakarta.validation:jakarta.validation-api'
     compileOnly 'org.slf4j:slf4j-api'
