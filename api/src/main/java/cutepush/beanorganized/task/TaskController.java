@@ -18,7 +18,7 @@ import java.time.format.DateTimeParseException;
 @RestController
 @RequestMapping("/users/{userId}/tasks")
 @RequiredArgsConstructor
-@Tag(name = "Task Controller", description = "Task for category CRUD")
+@Tag(name = "Task Controller", description = "Controller for task CRUD")
 public class TaskController {
 
     private final TaskService taskService;

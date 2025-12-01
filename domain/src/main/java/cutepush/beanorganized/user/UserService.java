@@ -38,9 +38,6 @@ public class UserService {
         }
 
         boolean isNew = (userEntity.getId() == null);
-        if (userEntity.getPassword() != null && !isBCrypt(userEntity.getPassword())) {
-            userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        }
         UserEntity savedUser = userRepository.save(userEntity);
         log.info("User {}: {}", isNew ? "created" : "updated", savedUser.getName());
         if (isNew) {
