@@ -1,6 +1,7 @@
 package cutepush.beanorganized.task;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,11 +11,13 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
 
     public TaskEntity save(TaskEntity task) {
+        log.info("Saving task: {}", task);
         return taskRepository.save(task);
     }
 
@@ -27,6 +30,7 @@ public class TaskService {
     }
 
     public void delete(TaskEntity entity) {
+        log.info("Deleting task: {}", entity);
         taskRepository.delete(entity);
     }
 

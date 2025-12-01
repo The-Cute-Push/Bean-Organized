@@ -5,8 +5,8 @@ import cutepush.beanorganized.kafka.user.UserEvent;
 import cutepush.beanorganized.kafka.user.UserProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
@@ -25,6 +25,9 @@ public class UserService {
 
     public UserEntity save(UserEntity userEntity) {
         boolean isNew = (userEntity.getId() == null);
+        if (userEntity.getPassword() != null && !isBCrypt(userEntity.getPassword())) {
+            userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        }
         UserEntity savedUser = userRepository.save(userEntity);
         log.info("User {}: {}", isNew ? "created" : "updated", savedUser);
         if (isNew) {
@@ -32,14 +35,13 @@ public class UserService {
         } else {
             userProducer.send(UserEvent.create(savedUser, EventType.UPDATE));
         }
-        if (userEntity.getPassword() != null && !isBCrypt(userEntity.getPassword())) {
-            userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        }
         return savedUser;
     }
 
     private boolean isBCrypt(String pwd) {
-        return pwd.startsWith("$2a$") || pwd.startsWith("$2b$") || pwd.startsWith("$2y$");
+        return pwd != null && pwd.length() == 60 &&
+                (pwd.startsWith("$2a$") || pwd.startsWith("$2b$") ||
+                        pwd.startsWith("$2y$") || pwd.startsWith("$2x$"));
     }
 
     public Optional<UserEntity> findById(Long id) {
