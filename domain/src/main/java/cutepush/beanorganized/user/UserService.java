@@ -3,6 +3,7 @@ package cutepush.beanorganized.user;
 import cutepush.beanorganized.kafka.user.EventType;
 import cutepush.beanorganized.kafka.user.UserEvent;
 import cutepush.beanorganized.kafka.user.UserProducer;
+import cutepush.beanorganized.task.TaskEntity;
 import cutepush.beanorganized.task.TaskRepository;
 import cutepush.beanorganized.category.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -96,5 +98,52 @@ public class UserService {
         userProducer.send(UserEvent.create(userToDelete, EventType.DELETE));
         // Use deleteById to issue a direct delete without relying on the possibly-managed entity
         userRepository.deleteById(id);
+    }
+
+    // New: batch load users with profiles and tasks to avoid N+1 queries when listing
+    @Transactional(readOnly = true)
+    public List<UserWithRelations> findAllWithProfilesAndTasks() {
+        Iterable<UserEntity> usersIt = userRepository.findAll();
+        List<UserEntity> users = new ArrayList<>();
+        usersIt.forEach(users::add);
+
+        if (users.isEmpty()) return Collections.emptyList();
+
+        List<Long> userIds = users.stream()
+                .map(UserEntity::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        // Batch load tasks and profiles
+        Iterable<TaskEntity> tasksIt = taskRepository.findAllByUser_IdIn(userIds);
+        Iterable<UserProfileEntity> profilesIt = userProfileRepository.findAllByUser_IdIn(userIds);
+
+        // Group tasks by user id
+        Map<Long, List<TaskEntity>> tasksByUser = new HashMap<>();
+        if (tasksIt != null) {
+            for (TaskEntity t : tasksIt) {
+                if (t.getUser() == null || t.getUser().getId() == null) continue;
+                tasksByUser.computeIfAbsent(t.getUser().getId(), k -> new ArrayList<>()).add(t);
+            }
+        }
+
+        // Map profiles by user id (one profile per user)
+        Map<Long, UserProfileEntity> profileByUser = new HashMap<>();
+        if (profilesIt != null) {
+            for (UserProfileEntity p : profilesIt) {
+                if (p.getUser() == null || p.getUser().getId() == null) continue;
+                profileByUser.put(p.getUser().getId(), p);
+            }
+        }
+
+        // Build result list preserving user order
+        List<UserWithRelations> result = new ArrayList<>();
+        for (UserEntity u : users) {
+            UserProfileEntity profile = profileByUser.get(u.getId());
+            List<TaskEntity> userTasks = tasksByUser.getOrDefault(u.getId(), List.of());
+            result.add(new UserWithRelations(u, profile, userTasks));
+        }
+
+        return result;
     }
 }

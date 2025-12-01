@@ -2,6 +2,7 @@ package cutepush.beanorganized.category;
 
 import cutepush.beanorganized.user.UserEntity;
 import cutepush.beanorganized.user.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/users/{userId}/categories")
 @RequiredArgsConstructor
+@Tag(name = "Category Controller", description = "Controller for category CRUD")
 public class CategoryController {
 
     private final CategoryService categoryService;

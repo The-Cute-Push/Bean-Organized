@@ -1,5 +1,6 @@
 package cutepush.beanorganized.user;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 import java.util.stream.Collectors;
+import java.util.List;
 
 import cutepush.beanorganized.task.TaskEntity;
 import cutepush.beanorganized.task.TaskService;
@@ -16,6 +18,7 @@ import cutepush.beanorganized.task.TaskService;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Tag(name = "User Controller", description = "Controller for user CRUD")
 public class UserController {
     private final UserService userService;
     private final TaskService taskService;
@@ -37,12 +40,13 @@ public class UserController {
 
     @GetMapping
     public Iterable<UserResponse> list() {
-        Iterable<UserEntity> all = userService.findAll();
-        return StreamSupport.stream(all.spliterator(), false)
-                // load tasks for each user and produce full response with profile and tasks
-                .map(user -> {
-                    Iterable<TaskEntity> tasksForUser = taskService.findAllByUserId(user.getId());
-                    var tasks = StreamSupport.stream(tasksForUser.spliterator(), false)
+        // Use batch-loading service to avoid N+1: loads users, their profiles and tasks in a few queries
+        List<UserWithRelations> users = userService.findAllWithProfilesAndTasks();
+
+        return users.stream()
+                .map(uwr -> {
+                    UserEntity user = uwr.getUser();
+                    var tasks = uwr.getTasks().stream()
                             .map(t -> new UserResponse.Task(
                                     t.getId(),
                                     t.getTitle(),
@@ -52,10 +56,10 @@ public class UserController {
                                     t.getStatus()
                             ))
                             .collect(Collectors.toList());
-                    var profileDto = userProfileService.findByUserId(user.getId()).map(UserController::toProfileDto).orElse(null);
+                    var profileDto = toProfileDto(uwr.getProfile());
                     return toResponseWithTasks(user, profileDto, tasks);
                 })
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
