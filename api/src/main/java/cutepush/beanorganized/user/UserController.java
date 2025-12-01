@@ -19,24 +19,42 @@ import cutepush.beanorganized.task.TaskService;
 public class UserController {
     private final UserService userService;
     private final TaskService taskService;
+    private final UserProfileService userProfileService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserEntity add(@Valid @RequestBody UserRequest request) {
+    public UserResponse add(@Valid @RequestBody UserRequest request) {
         UserEntity entity = new UserEntity();
         entity.setName(request.getName());
         entity.setEmail(request.getEmail());
         entity.setPassword(request.getPassword());
 
-        return userService.save(entity);
+        UserEntity saved = userService.save(entity);
+        // Return DTO (without tasks) to avoid exposing JPA internals and recursive relations
+        var profileDto = userProfileService.findByUserId(saved.getId()).map(UserController::toProfileDto).orElse(null);
+        return toResponseWithoutTasks(saved, profileDto);
     }
 
     @GetMapping
     public Iterable<UserResponse> list() {
         Iterable<UserEntity> all = userService.findAll();
         return StreamSupport.stream(all.spliterator(), false)
-                // use a summary mapper that doesn't access user.getProfile() to avoid N+1 when profile is EAGER
-                .map(UserController::toResponseSummary)
+                // load tasks for each user and produce full response with profile and tasks
+                .map(user -> {
+                    Iterable<TaskEntity> tasksForUser = taskService.findAllByUserId(user.getId());
+                    var tasks = StreamSupport.stream(tasksForUser.spliterator(), false)
+                            .map(t -> new UserResponse.Task(
+                                    t.getId(),
+                                    t.getTitle(),
+                                    t.getDescription(),
+                                    t.getDateCreation(),
+                                    t.getDueDate(),
+                                    t.getStatus()
+                            ))
+                            .collect(Collectors.toList());
+                    var profileDto = userProfileService.findByUserId(user.getId()).map(UserController::toProfileDto).orElse(null);
+                    return toResponseWithTasks(user, profileDto, tasks);
+                })
                 .toList();
     }
 
@@ -57,7 +75,8 @@ public class UserController {
                 ))
                 .collect(Collectors.toList());
 
-        return toResponseWithTasks(user, tasks);
+        var profileDto = userProfileService.findByUserId(id).map(UserController::toProfileDto).orElse(null);
+        return toResponseWithTasks(user, profileDto, tasks);
     }
 
     // Summary view used in list() to avoid loading relationships (prevents N+1)
@@ -74,8 +93,7 @@ public class UserController {
     }
 
     // Detailed response without tasks
-    private static UserResponse toResponseWithoutTasks(UserEntity user) {
-        UserResponse.Profile profileDto = toProfileDto(user.getProfile());
+    private static UserResponse toResponseWithoutTasks(UserEntity user, UserResponse.Profile profileDto) {
         return new UserResponse(
                 user.getId(),
                 user.getName(),
@@ -88,8 +106,7 @@ public class UserController {
     }
 
     // Detailed response with tasks
-    private static UserResponse toResponseWithTasks(UserEntity user, java.util.List<UserResponse.Task> tasks) {
-        UserResponse.Profile profileDto = toProfileDto(user.getProfile());
+    private static UserResponse toResponseWithTasks(UserEntity user, UserResponse.Profile profileDto, java.util.List<UserResponse.Task> tasks) {
         return new UserResponse(
                 user.getId(),
                 user.getName(),
@@ -113,7 +130,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserEntity update(@PathVariable Long id, @Valid @RequestBody UserRequest request) {
+    public UserResponse update(@PathVariable Long id, @Valid @RequestBody UserRequest request) {
         Optional<UserEntity> optional = userService.findById(id);
         if (optional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -123,7 +140,9 @@ public class UserController {
         existing.setName(request.getName());
         existing.setEmail(request.getEmail());
         existing.setPassword(request.getPassword());
-        return userService.save(existing);
+        UserEntity saved = userService.save(existing);
+        var profileDto = userProfileService.findByUserId(saved.getId()).map(UserController::toProfileDto).orElse(null);
+        return toResponseWithoutTasks(saved, profileDto);
     }
 
     @DeleteMapping("/{id}")

@@ -16,41 +16,39 @@ public class UserProfileController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserProfileEntity create(@PathVariable Long userId, @Valid @RequestBody UserProfileRequest request) {
-        UserEntity user = userService.findById(userId)
+    public UserProfileResponse create(@PathVariable Long userId, @Valid @RequestBody UserProfileRequest request) {
+        var user = userService.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
-
 
         if (userProfileService.findByUserId(userId).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Profile already exists for this user");
         }
 
         UserProfileEntity profile = new UserProfileEntity();
-        // phone sanitization is handled in applyRequest to keep create/update consistent
-
         profile.setUser(user);
-        // With @MapsId on the entity, the primary key will be derived from the associated user automatically
         applyRequest(profile, request);
 
-        return userProfileService.save(profile);
+        UserProfileEntity saved = userProfileService.save(profile);
+        return toDto(saved);
     }
 
     @GetMapping
-    public UserProfileEntity get(@PathVariable Long userId) {
-        return userProfileService.findByUserId(userId)
+    public UserProfileResponse get(@PathVariable Long userId) {
+        UserProfileEntity profile = userProfileService.findByUserId(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
+        return toDto(profile);
     }
 
     @PutMapping
-    public UserProfileEntity update(@PathVariable Long userId, @Valid @RequestBody UserProfileRequest request) {
-        UserEntity user = userService.findById(userId)
+    public UserProfileResponse update(@PathVariable Long userId, @Valid @RequestBody UserProfileRequest request) {
+        userService.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         UserProfileEntity existing = userProfileService.findByUserId(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found"));
         applyRequest(existing, request);
-        return userProfileService.save(existing);
+        UserProfileEntity saved = userProfileService.save(existing);
+        return toDto(saved);
     }
 
     @DeleteMapping
@@ -70,5 +68,15 @@ public class UserProfileController {
         } else {
             target.setPhone(null);
         }
+    }
+
+    private static UserProfileResponse toDto(UserProfileEntity p) {
+        if (p == null) return null;
+        return new UserProfileResponse(
+                p.getId(),
+                p.getProfilePhoto(),
+                p.getBiography(),
+                p.getPhone()
+        );
     }
 }

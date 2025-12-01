@@ -2,6 +2,7 @@ package cutepush.beanorganized.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -11,8 +12,17 @@ public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
 
+    @Transactional(readOnly = true)
     public Optional<UserProfileEntity> findByUserId(Long userId) {
-        return userProfileRepository.findByUser_Id(userId);
+        Optional<UserProfileEntity> opt = userProfileRepository.findByUser_Id(userId);
+        // Force initialization of LOB fields while the persistence context is open to avoid LOB stream errors
+        opt.ifPresent(p -> {
+            if (p.getBiography() != null) {
+                // Access the string to ensure Hibernate materializes the LOB
+                p.getBiography();
+            }
+        });
+        return opt;
     }
 
     public Optional<UserProfileEntity> findByUser(UserEntity user) {
