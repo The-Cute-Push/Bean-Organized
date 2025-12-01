@@ -7,6 +7,7 @@ dependencies {
 
     //Spring Boot Dependencies
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     // Logging with Logstash
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
