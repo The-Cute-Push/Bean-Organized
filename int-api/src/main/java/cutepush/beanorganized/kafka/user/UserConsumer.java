@@ -70,7 +70,7 @@ public class UserConsumer {
                 "          • Adicione tarefas e defina prioridades<br/>" +
                 "          • Ative notificações para não perder nada" +
                 "        </div>" +
-                "        <a href='http://localhost/8080:users/"+event.id()+"' style='display:inline-block;background:#EA1D2C;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:bold;'>Acessar minha conta</a>" +
+                "        <a href='http://localhost:8080/users/"+event.id()+"' style='display:inline-block;background:#EA1D2C;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:bold;'>Acessar minha conta</a>" +
                 "        <p style='margin:18px 0 0;color:#666;font-size:12px'>Se você não criou esta conta, ignore este email.</p>" +
                 "      </td>" +
                 "    </tr>" +
