@@ -2,6 +2,7 @@ package cutepush.beanorganized.task;
 
 import cutepush.beanorganized.user.UserEntity;
 import cutepush.beanorganized.user.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,7 @@ import java.time.format.DateTimeParseException;
 @RestController
 @RequestMapping("/users/{userId}/tasks")
 @RequiredArgsConstructor
+@Tag(name = "Task Controller", description = "Controller for task CRUD")
 public class TaskController {
 
     private final TaskService taskService;

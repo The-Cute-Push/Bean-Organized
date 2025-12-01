@@ -2,6 +2,7 @@ package cutepush.beanorganized.notification;
 
 import cutepush.beanorganized.task.TaskEntity;
 import cutepush.beanorganized.task.TaskService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/users/{userId}/tasks/{taskId}/notifications")
 @RequiredArgsConstructor
+@Tag(name = "Notification Controller", description = "Controller for notification CRUD")
 public class NotificationController {
 
     private final NotificationService notificationService;

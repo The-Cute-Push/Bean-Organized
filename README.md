@@ -47,6 +47,14 @@ O projeto está estruturado em módulos para melhor organização e separação 
   - Foco em regras de domínio
   - Entidades JDBC e Value Objects
 
+#### 🔗 **int-api Module**
+- Módulo de integração/contratos (integrações internas ou adaptadores)
+- Contém contratos e adaptadores usados para comunicação entre módulos
+
+#### 🧰 **Logstash**
+- Contém a configuração do pipeline do Logstash responsável por enviar logs para o ElasticSearch
+- Arquivo principal: `logstash/pipeline/logstash.conf`
+
 ## 🛠️ Tecnologias
 
 - **Java 21**
@@ -90,12 +98,12 @@ Este comando irá iniciar:
 
 #### 3. Compile o projeto
 ```bash
-gradlew clean build
+./gradlew clean build
 ```
 
 #### 4. Execute a aplicação
 ```bash
-gradlew :api:bootRun
+./gradlew :api:bootRun
 ```
 
 A aplicação estará disponível em: `http://localhost:8080`
@@ -140,7 +148,7 @@ http://localhost:5601
 4. Clique em **Create data view**
 5. Configure:
    - **Name:** `bean-organized-logs`
-   - **Index pattern:** `logstash-*`
+   - **Index pattern:** `logs-*`
    - **Timestamp field:** `@timestamp`
 6. Clique em **Save data view to Kibana**
 7. Agora vá em **Analytics** → **Discover** para visualizar os logs
@@ -171,7 +179,7 @@ curl http://localhost:9200/_cat/indices?v
 
 **Buscar logs:**
 ```bash
-curl http://localhost:9200/logstash-*/_search?pretty
+curl http://localhost:9200/logs-*/_search?pretty
 ```
 
 ---
@@ -247,6 +255,10 @@ Bean-Organized/
 | ElasticSearch  | 9200  | http://localhost:9200            |
 | Logstash       | 5044  | tcp://localhost:5044             |
 | Kibana         | 5601  | http://localhost:5601            |
+| PostgreSQL     | 5432  | tcp://localhost:5432             |
+| Kafka          | 9092  | tcp://localhost:9092             |
+| Kafdrop        | 9000  | http://localhost:9000            |
+| Zookeeper      | 2181  | tcp://localhost:2181             |
 
 ### Variáveis de Ambiente (Docker)
 
@@ -264,7 +276,7 @@ O arquivo `docker-compose.yaml` configura:
 - **POST** `/v1/logs-test` - Testa logs de exceção
 
 ### Auditoria
-- **GET** `/log` - Acessa logs de auditoria (conforme requisito do projeto)
+- As informações de auditoria (inserções/atualizações/exclusões) são enviadas para a stack ELK e armazenadas no índice `logs-*` do ElasticSearch. Não há um endpoint HTTP global `GET /log` implementado neste repositório para recuperar toda a auditoria; para análise e exploração dos logs utilize o Kibana (`http://localhost:5601`) ou consulte o ElasticSearch diretamente via API (`logs-*` index). Para testes locais, use os endpoints de teste acima (`/v1/logs-test`).
 
 *(Outros endpoints serão documentados conforme desenvolvimento)*
 
@@ -311,4 +323,3 @@ Este projeto foi desenvolvido para fins educacionais como trabalho final da disc
 ## 🤝 Contribuições
 
 Desenvolvido por Lucas De Bitencourt Frasson e Vitor Muneretto Tinelli como projeto final de Back-end.
-

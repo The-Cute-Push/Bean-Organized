@@ -4,6 +4,7 @@ import cutepush.beanorganized.category.CategoryEntity;
 import cutepush.beanorganized.category.CategoryService;
 import cutepush.beanorganized.task.TaskEntity;
 import cutepush.beanorganized.task.TaskService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/users/{userId}/tasks/{taskId}/categories")
 @RequiredArgsConstructor
+@Tag(name = "Category Tasks Controller", description = "Controller for category task CRUD")
 public class CategoryTaskController {
 
     private final CategoryTaskService categoryTaskService;

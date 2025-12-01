@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Optional;
 
 @Repository
@@ -31,4 +32,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long>, JpaSpec
 
     // paginated unfiltered finder
     Page<TaskEntity> findAllByUser_Id(Long userId, Pageable pageable);
+
+    // Batch load tasks for multiple users to avoid N+1
+    Iterable<TaskEntity> findAllByUser_IdIn(Collection<Long> userIds);
 }
